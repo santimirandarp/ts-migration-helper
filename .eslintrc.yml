@@ -1,0 +1,4 @@
+extends: cheminfo-typescript
+rules:
+  # Your rules here
+  no-console: off
