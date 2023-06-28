@@ -1,4 +1,9 @@
 #!/usr/bin/env node
-import { part1 } from './part1.js';
+import { run } from './run.js';
 
-part1();
+run()
+  .then(() => console.log('done'))
+  .catch((error) => {
+    console.log(error);
+    process.exit(1);
+  });
