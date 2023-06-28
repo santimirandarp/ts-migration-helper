@@ -1,8 +1,8 @@
-import { execAsync } from '../utils/execAsync.js';
 
 import chalk from 'chalk';
 
 import { type RemovesKeys, removes } from '../setup/removes.js';
+import { execAsync } from '../utils/execAsync.js';
 
 export async function removeSoftware(name: RemovesKeys[]) {
   const commands = [];
@@ -16,8 +16,8 @@ export async function removeSoftware(name: RemovesKeys[]) {
     }
   }
 
-  const npmCommand = 'npm remove ' + commands.join(' ');
-  const remove = 'rm -i ' + filesToRemove.join(' ');
+  const npmCommand = `npm remove ${  commands.join(' ')}`;
+  const remove = `rm -i ${  filesToRemove.join(' ')}`;
   try {
     await Promise.all([execAsync(npmCommand), execAsync(remove)]);
   } catch (e) {

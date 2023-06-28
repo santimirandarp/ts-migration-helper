@@ -1,5 +1,6 @@
-import { writeFile } from 'fs/promises';
 import { execSync as exec } from 'child_process';
+import { writeFile } from 'fs/promises';
+
 import got from 'got';
 
 export async function replaceWorkflow(path: string, webSource: string) {

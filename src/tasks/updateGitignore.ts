@@ -1,4 +1,5 @@
-import { readFile, writeFile } from 'fs/promises';
+import { writeFile } from 'fs/promises';
+
 import chalk from 'chalk';
 
 export async function updateGitignore(file: string) {
@@ -12,5 +13,5 @@ export async function updateGitignore(file: string) {
     gitignore.push('lib-esm');
     console.log(chalk.green('added lib-esm to .gitignore'));
   }
-  return await writeFile('.gitignore', gitignore.join('\n'));
+  return writeFile('.gitignore', gitignore.join('\n'));
 }

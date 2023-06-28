@@ -1,7 +1,8 @@
-import { execAsync } from '../utils/execAsync.js';
+import chalk from 'chalk';
 
 import { InstallNames, installs } from '../setup/installs.js';
-import chalk from 'chalk';
+import { execAsync } from '../utils/execAsync.js';
+
 
 export async function installSoftware(keys: InstallNames[]) {
   const command = `npm i -D ${keys

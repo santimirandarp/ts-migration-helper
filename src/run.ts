@@ -3,8 +3,7 @@ import { readFile } from 'node:fs/promises';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
-import { fileExists } from './utils/fileExists.js';
-
+import { questions } from './setup/questions.js';
 import {
   installSoftware,
   configureSoftware as cf,
@@ -13,8 +12,7 @@ import {
   removeSoftware,
   replaceWorkflow,
 } from './tasks/index.js';
-import { questions } from './setup/questions.js';
-import { getPackageJson } from './utils/checkPackageJson.js';
+import { fileExists } from './utils/fileExists.js';
 
 const workflowSources = {
   web: 'https://raw.githubusercontent.com/cheminfo/.github/main/workflow-templates/nodejs-ts.yml',
@@ -32,7 +30,6 @@ export async function run() {
   );
 
   // errors if not found
-  const packageJson = await getPackageJson();
 
   await inquirer.prompt(questions).then(async (response) => {
     const { install, configs, json, gitignore, removes, workflow } = response;
@@ -55,9 +52,9 @@ export async function run() {
 
     // update package.json
     if (json && (await fileExists('package.json'))) {
-      const file = await readFile('.gitignore', 'utf-8')
+      await readFile('.gitignore', 'utf8')
         .then(async (file) => {
-          return await updatePackageJson(file);
+          return updatePackageJson(file);
         })
         .catch((error) => {
           console.log(chalk.red('Error Updating package.json'));
@@ -67,9 +64,9 @@ export async function run() {
 
     // update .gitignore
     if (gitignore && (await fileExists('.gitignore'))) {
-      const file = await readFile('.gitignore', 'utf-8')
+      await readFile('.gitignore', 'utf8')
         .then(async (file) => {
-          return await updateGitignore(file);
+          return updateGitignore(file);
         })
         .catch((error) => {
           console.log(chalk.red('Error Updating .gitignore'));
@@ -86,8 +83,9 @@ export async function run() {
       });
     }
     // remove software
-    for (const answer of removes) {
-      await removeSoftware(answer);
-    }
+    await removeSoftware(removes).catch((error) => {
+      console.log(chalk.red('Error Removing Software', removes));
+      throw new Error(error);
+    });
   });
 }

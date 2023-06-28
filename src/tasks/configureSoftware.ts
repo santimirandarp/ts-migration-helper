@@ -1,12 +1,11 @@
 import { readFile, writeFile } from 'fs/promises';
 
+import chalk from 'chalk';
 import inquirer from 'inquirer';
 import YAML from 'yaml';
 
-import { fileExists } from '../utils/fileExists.js';
-
 import { configs } from '../setup/configs.js';
-import chalk from 'chalk';
+import { fileExists } from '../utils/fileExists.js';
 
 type KeyNames = keyof typeof configs;
 export async function configureSoftware(name: KeyNames) {
@@ -15,7 +14,7 @@ export async function configureSoftware(name: KeyNames) {
 
   if (await fileExists(fName)) {
     console.log(chalk.yellow(`File ${fName} already exists.`));
-    const answer = await inquirer.prompt([makeConfigsPrompt(endsWithJS, name)]);
+    const answer = await inquirer.prompt([makeConfigsPrompt(name, endsWithJS)]);
     console.log(answer);
     await writeConfig(answer, name);
   } else {
@@ -60,10 +59,12 @@ async function writeConfig(answer: string, name: KeyNames) {
       }
       break;
     }
+    default:
+      break;
   }
 }
 
-function makeConfigsPrompt(js = false, name: KeyNames) {
+function makeConfigsPrompt(name: KeyNames, js = false) {
   return {
     choices: [
       {
