@@ -2,7 +2,6 @@
 
 [![NPM version][npm-image]][npm-url]
 [![build status][ci-image]][ci-url]
-[![Test coverage][codecov-image]][codecov-url]
 [![npm download][download-image]][download-url]
 
 Migrate simple Cheminfo JS projects to Typescript made for personal use.
@@ -25,7 +24,5 @@ npx ts-migration-helper prompt
 [npm-url]: https://www.npmjs.com/package/ts-migration-helper
 [ci-image]: https://github.com/santimirandarp/ts-migration-helper/workflows/Node.js%20CI/badge.svg?branch=main
 [ci-url]: https://github.com/santimirandarp/ts-migration-helper/actions?query=workflow%3A%22Node.js+CI%22
-[codecov-image]: https://img.shields.io/codecov/c/github/santimirandarp/ts-migration-helper.svg
-[codecov-url]: https://codecov.io/gh/santimirandarp/ts-migration-helper
 [download-image]: https://img.shields.io/npm/dm/ts-migration-helper.svg
 [download-url]: https://www.npmjs.com/package/ts-migration-helper
