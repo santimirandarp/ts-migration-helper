@@ -23,6 +23,7 @@
     "prettier": "prettier --check src",
     "prettier-write": "prettier --write src",
     "tidy": "npm run eslint-fix && npm run prettier-write && npm run check-types",
+    "test-only": "echo hello",
     "tsc": "npm run clean && tsc",
     "prompt": "node ./bin/index.js"
   },
