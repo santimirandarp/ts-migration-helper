@@ -2,6 +2,8 @@ import { writeFile } from 'fs/promises';
 
 import chalk from 'chalk';
 
+import { sortByKeys } from '../utils/sortByKeys.js';
+
 const SCRIPTS_TO_DELETE = ['compile', 'prePublishOnly', 'jest'];
 
 const UPDATE_SCRIPTS = {
@@ -32,7 +34,7 @@ export async function updatePackageJson(file: string) {
   if (json.scripts.test) {
     json.scripts.test += ' && npm run check-types';
   }
-
+  json.scripts = sortByKeys(json.scripts);
   await writeFile('package.json', `${JSON.stringify(json, null, 2)}\n`);
   console.log(chalk.green('updated package.json'));
 }

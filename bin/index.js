@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { unlink, readFile as readFile$1 } from 'node:fs/promises';
 import chalk from 'chalk';
+import { unlink, readFile as readFile$1 } from 'node:fs/promises';
 import inquirer from 'inquirer';
 import { access, readFile, writeFile } from 'fs/promises';
 import YAML from 'yaml';
@@ -226,7 +226,7 @@ async function configureSoftware(configKeyName) {
         await handleAction(answer);
     }
     else {
-        // @ts-expect-error
+        // @ts-expect-error problem
         await handleAction({ [configKeyName]: 'overwrite' });
     }
 }
@@ -328,6 +328,10 @@ async function installSoftware(keys) {
     console.log(chalk.green('Installed Software'), command);
 }
 
+function sortByKeys(obj) {
+    return Object.fromEntries(Object.entries(obj).sort(([a], [b]) => a.localeCompare(b)));
+}
+
 const SCRIPTS_TO_DELETE = ['compile', 'prePublishOnly', 'jest'];
 const UPDATE_SCRIPTS = {
     'check-types': 'tsc --noEmit',
@@ -346,25 +350,39 @@ async function updatePackageJson(file) {
     json.scripts = { ...json.scripts, ...UPDATE_SCRIPTS };
     SCRIPTS_TO_DELETE.forEach((script) => {
         if (script in json.scripts) {
+            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
             delete json.scripts[script];
         }
     });
     if (json.scripts.test) {
         json.scripts.test += ' && npm run check-types';
     }
+    json.scripts = sortByKeys(json.scripts);
     await writeFile('package.json', `${JSON.stringify(json, null, 2)}\n`);
     console.log(chalk.green('updated package.json'));
 }
 
-async function updateGitignore(file) {
-    const gitignore = file.split('\n');
-    if (!gitignore.includes('lib')) {
-        gitignore.push('lib');
-        console.log(chalk.green('added lib'));
+/**
+ * Asynchronously updates the .gitignore file to ensure that 'lib' and 'lib-esm' are present.
+ *
+ * @param fileContents - The current contents of the .gitignore file as a string.
+ * @returns - A Promise that fulfills with undefined when the updated .gitignore file has been written to disk.
+ *
+ */
+async function updateGitignore(fileContents) {
+    const gitignore = fileContents.split('\n');
+    const present = [];
+    for (const line of gitignore) {
+        if (line === 'lib')
+            present.push('lib');
+        else if (line === 'lib-esm')
+            present.push('lib-esm');
     }
-    if (!gitignore.includes('lib-esm')) {
+    if (!present.includes('lib')) {
+        gitignore.push('lib');
+    }
+    if (!present.includes('lib-esm')) {
         gitignore.push('lib-esm');
-        console.log(chalk.green('added lib-esm'));
     }
     return writeFile('.gitignore', gitignore.join('\n').concat('\n'));
 }
