@@ -18,6 +18,9 @@ const UPDATE_SCRIPTS = {
 };
 
 export async function updatePackageJson() {
+  const msg = 'Updating package.json';
+  printYellow(`Section: ${msg}`);
+
   const answer = await confirm({
     message: 'Update package.json ?',
     default: true,
@@ -26,9 +29,7 @@ export async function updatePackageJson() {
     printYellow('Skipping package.json update.');
     return;
   }
-  const msg = 'Updating package.json';
   try {
-    printYellow(msg);
     const fileContents = await readFile('package.json', 'utf8');
     const json = JSON.parse(fileContents);
 

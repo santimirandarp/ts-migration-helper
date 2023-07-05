@@ -10,6 +10,9 @@ export async function replaceWorkflow() {
     'https://raw.githubusercontent.com/cheminfo/.github/main/workflow-templates/nodejs-ts.yml';
   const path = '.github/workflows/nodejs.yml';
 
+  const msg = 'Replacing workflow';
+  printYellow(`Section: ${msg}`);
+
   const data = await got(webSource).text();
 
   const answer = await confirm({
@@ -26,7 +29,6 @@ export async function replaceWorkflow() {
     default: '',
   });
 
-  const msg = 'Updating workflow';
   try {
     printYellow(msg);
     const updated = branchName

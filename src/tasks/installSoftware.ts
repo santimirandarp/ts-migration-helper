@@ -49,14 +49,15 @@ export const installs = [
 ];
 
 export async function installSoftware() {
+  const msg = 'Installing Software';
+  printYellow(`Section: ${msg}`);
+
   const answers = await checkbox({
     message: 'Install (dev dependencies) ?',
     choices: installs.map((install) => install.choice),
   });
 
   if (answers.length) {
-    const msg = 'Installing Software';
-    printYellow(msg);
     try {
       const command = `npm i -D ${answers.join(' ')}`;
       await execAsync(command);

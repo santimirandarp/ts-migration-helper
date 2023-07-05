@@ -3,12 +3,15 @@ import { readFile, writeFile } from 'fs/promises';
 import { select, checkbox } from '@inquirer/prompts';
 import YAML from 'yaml';
 
-import { fileExists } from '../utils/fileExists.js';
+import { fileExists, printRed, printYellow } from '../utils/index.js';
 
 /**
  * Offers a way to add the config files to the most common config files.
  */
 export async function configureSoftware() {
+  const msg = 'Configuring Software';
+  printYellow(`Section: ${msg}`);
+
   const configs = getConfigs();
 
   const answers = await checkbox({
@@ -18,18 +21,23 @@ export async function configureSoftware() {
   if (answers.length === 0) return;
 
   for (const item of configs) {
-    const { value: filename, name } = item.choice;
-    const endsWithJS = filename.endsWith('.js');
-    if (!answers.includes(name)) continue;
+    try {
+      const { value: filename, name } = item.choice;
+      const endsWithJS = filename.endsWith('.js');
+      if (!answers.includes(name)) continue;
 
-    if (await fileExists(filename)) {
-      const action = await select({
-        message: `How to handle ${filename}?`,
-        choices: getConfigActions(endsWithJS),
-      });
-      await handleAction(filename, item.config, action);
-    } else {
-      await handleAction(filename, item.config, 'overwrite');
+      if (await fileExists(filename)) {
+        const action = await select({
+          message: `How to handle ${filename}?`,
+          choices: getConfigActions(endsWithJS),
+        });
+        await handleAction(filename, item.config, action);
+      } else {
+        await handleAction(filename, item.config, 'overwrite');
+      }
+    } catch (e) {
+      printRed(msg);
+      if (typeof e === 'string') throw new Error(e);
     }
   }
 }

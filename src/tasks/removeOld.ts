@@ -11,8 +11,9 @@ import {
 } from '../utils/index.js';
 
 export async function removeOld() {
-  const msg = 'Old Config Files and Software.';
-  printYellow(msg);
+  const msg = 'Removing Old Software';
+  printYellow(`Section: ${msg}`);
+
   try {
     await removeOldLocal();
   } catch (e) {

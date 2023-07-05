@@ -9,6 +9,9 @@ import { printRed, printYellow } from '../utils/index.js';
  *
  */
 export async function updateGitignore() {
+  const msg = 'Updating .gitignore';
+  printYellow(`Section: ${msg}`);
+
   const answer = await confirm({
     message: 'Update .gitignore ?',
     default: true,
@@ -17,9 +20,7 @@ export async function updateGitignore() {
     printYellow('Skipping .gitignore update.');
     return;
   }
-  const msg = 'Updating .gitignore';
   try {
-    printYellow(msg);
     const fileContents = await readFile('.gitignore', 'utf8');
     const gitignore = fileContents.split('\n');
     let result = 0;
