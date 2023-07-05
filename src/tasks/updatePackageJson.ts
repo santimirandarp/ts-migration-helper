@@ -1,7 +1,9 @@
-import { writeFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 
+import { confirm } from '@inquirer/prompts';
 import chalk from 'chalk';
 
+import { printRed, printYellow } from '../utils/print.js';
 import { sortByKeys } from '../utils/sortByKeys.js';
 
 const SCRIPTS_TO_DELETE = ['compile', 'prePublishOnly', 'jest'];
@@ -15,26 +17,43 @@ const UPDATE_SCRIPTS = {
   'tsc-esm': 'tsc --project tsconfig.esm.json',
 };
 
-export async function updatePackageJson(file: string) {
-  const json = JSON.parse(file);
+export async function updatePackageJson() {
+  const msg = 'Updating package.json';
+  printYellow(`Section: ${msg}`);
 
-  json.main = './lib/index.js';
-  json.module = './lib-esm/index.js';
-  json.types = './lib/index.d.ts';
-  json.files = ['src', 'lib', 'lib-esm'];
-  json.scripts = { ...json.scripts, ...UPDATE_SCRIPTS };
-
-  SCRIPTS_TO_DELETE.forEach((script) => {
-    if (script in json.scripts) {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete json.scripts[script];
-    }
+  const answer = await confirm({
+    message: 'Update package.json ?',
+    default: true,
   });
-
-  if (json.scripts.test) {
-    json.scripts.test += ' && npm run check-types';
+  if (!answer) {
+    printYellow('Skipping package.json update.');
+    return;
   }
-  json.scripts = sortByKeys(json.scripts);
-  await writeFile('package.json', `${JSON.stringify(json, null, 2)}\n`);
-  console.log(chalk.green('updated package.json'));
+  try {
+    const fileContents = await readFile('package.json', 'utf8');
+    const json = JSON.parse(fileContents);
+
+    json.main = './lib/index.js';
+    json.module = './lib-esm/index.js';
+    json.types = './lib/index.d.ts';
+    json.files = ['src', 'lib', 'lib-esm'];
+    json.scripts = { ...json.scripts, ...UPDATE_SCRIPTS };
+
+    SCRIPTS_TO_DELETE.forEach((script) => {
+      if (script in json.scripts) {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+        delete json.scripts[script];
+      }
+    });
+
+    if (json.scripts.test) {
+      json.scripts.test += ' && npm run check-types';
+    }
+    json.scripts = sortByKeys(json.scripts);
+    await writeFile('package.json', `${JSON.stringify(json, null, 2)}\n`);
+    console.log(chalk.green('updated package.json'));
+  } catch (e) {
+    printRed(msg);
+    if (typeof e === 'string') throw new Error(e);
+  }
 }

@@ -1,26 +1,40 @@
-import { writeFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
+
+import { confirm } from '@inquirer/prompts';
+
+import { printRed, printYellow } from '../utils/index.js';
 
 /**
  * Asynchronously updates the .gitignore file to ensure that 'lib' and 'lib-esm' are present.
  *
- * @param fileContents - The current contents of the .gitignore file as a string.
- * @returns - A Promise that fulfills with undefined when the updated .gitignore file has been written to disk.
- *
  */
-export async function updateGitignore(fileContents: string) {
-  const gitignore = fileContents.split('\n');
-  const present = [];
-  for (const line of gitignore) {
-    if (line === 'lib') present.push('lib');
-    else if (line === 'lib-esm') present.push('lib-esm');
-  }
+export async function updateGitignore() {
+  const msg = 'Updating .gitignore';
+  printYellow(`Section: ${msg}`);
 
-  if (!present.includes('lib')) {
-    gitignore.push('lib');
+  const answer = await confirm({
+    message: 'Update .gitignore ?',
+    default: true,
+  });
+  if (!answer) {
+    printYellow('Skipping .gitignore update.');
+    return;
   }
-  if (!present.includes('lib-esm')) {
-    gitignore.push('lib-esm');
-  }
+  try {
+    const fileContents = await readFile('.gitignore', 'utf8');
+    const gitignore = fileContents.split('\n');
+    let result = 0;
+    for (const line of gitignore) {
+      if (line === 'lib') result += 1;
+      else if (line === 'lib-esm') result += 2;
+    }
 
-  return writeFile('.gitignore', gitignore.join('\n').concat('\n'));
+    if (!(result & 1)) gitignore.push('lib');
+    if (!(result >> 1)) gitignore.push('lib-esm');
+
+    await writeFile('.gitignore', gitignore.join('\n').concat('\n'));
+  } catch (e) {
+    printRed(msg);
+    if (typeof e === 'string') throw new Error(e);
+  }
 }

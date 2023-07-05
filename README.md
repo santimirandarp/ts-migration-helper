@@ -16,6 +16,16 @@ Migrate simple Cheminfo JS projects to Typescript made for personal use.
 npx ts-migration-helper prompt
 ```
 
+
+The code is built with the following idea:
+
+* Tasks correspond to functions: 
+    * install software, remove software, update files and so on
+* Each module (each js file) file stores the function/task, and the prompt to the user
+* They are run serially in the run function.
+
+This makes it easier to anyone to fix and modify.
+
 ## License
 
 [MIT](./LICENSE)
