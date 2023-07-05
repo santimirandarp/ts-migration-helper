@@ -1,103 +1,178 @@
 import { readFile, writeFile } from 'fs/promises';
 
-import inquirer from 'inquirer';
+import { select, checkbox } from '@inquirer/prompts';
 import YAML from 'yaml';
 
-import { configs } from '../setup/configs.js';
 import { fileExists } from '../utils/fileExists.js';
 
-type KeyNames = keyof typeof configs;
-export async function configureSoftware(configKeyName: KeyNames) {
-  const { filename } = configs[configKeyName];
-  const endsWithJS = filename.endsWith('.js');
+/**
+ * Offers a way to add the config files to the most common config files.
+ */
+export async function configureSoftware() {
+  const configs = getConfigs();
 
-  if (await fileExists(filename)) {
-    const answer = await inquirer.prompt([
-      makeConfigsPrompt(configKeyName, endsWithJS),
-    ]);
-    await handleAction(answer);
-  } else {
-    // @ts-expect-error problem
-    await handleAction({ [configKeyName]: 'overwrite' });
+  const answers = await checkbox({
+    message: 'Config Files (no overwrite without prompting):',
+    choices: configs.map(({ choice }) => choice),
+  });
+  if (answers.length === 0) return;
+
+  for (const item of configs) {
+    const { value: filename, name } = item.choice;
+    const endsWithJS = filename.endsWith('.js');
+    if (!answers.includes(name)) continue;
+
+    if (await fileExists(filename)) {
+      const action = await select({
+        message: `How to handle ${filename}?`,
+        choices: getConfigActions(endsWithJS),
+      });
+      await handleAction(filename, item.config, action);
+    } else {
+      await handleAction(filename, item.config, 'overwrite');
+    }
   }
 }
 
 /**
- * @param action - overwrite, merge, skip
- * @param configKeyName
+ * What to do with the config file.
+ * @param filename - The name of the file to write to.
+ * @param config - The config object or string to write to the file.
+ * @param action - The action to take (overwrite, merge, skip)
  * @returns
  */
-async function handleAction(data: Record<KeyNames, string>) {
-  const [configKeyName, action] = Object.entries(data)[0] as [KeyNames, string];
-  const { filename, config } = configs[configKeyName];
-  switch (action) {
-    case 'overwrite': {
-      if (filename.endsWith('.json')) {
-        await writeFile(filename, JSON.stringify(config, null, 2).concat('\n'));
-      } else if (filename.endsWith('.yml')) {
-        await writeFile(filename, YAML.stringify({ extends: config }));
-      } else if (filename.endsWith('.js')) {
-        await writeFile(filename, config as string);
-      }
-      break;
+async function handleAction(filename: string, config: any, action: string) {
+  const isJson = filename.endsWith('.json');
+  const isYaml = filename.endsWith('.yml');
+  const isJs = filename.endsWith('.js');
+
+  if (action === 'overwrite') {
+    if (isJson) {
+      await writeFile(filename, JSON.stringify(config, null, 2).concat('\n'));
+    } else if (isYaml) {
+      await writeFile(filename, YAML.stringify({ extends: config }));
+    } else if (isJs) {
+      await writeFile(filename, config as string);
     }
-    case 'merge': {
-      const file = await readFile(filename, 'utf-8');
-      if (filename.endsWith('.json')) {
-        const jsonObject = JSON.parse(file);
-        if (typeof jsonObject !== 'object') {
-          throw new Error(`Expected ${filename} to be an object`);
-        }
-        await writeFile(
-          filename,
-          JSON.stringify({ ...jsonObject, config }, null, 2).concat('\n'),
-        );
-      } else if (filename.endsWith('.yml')) {
-        const yamlObject = YAML.parse(file);
-        await writeFile(
-          filename,
-          YAML.stringify({ ...yamlObject, extends: config }),
-        );
+  } else if (action === 'merge') {
+    const file = await readFile(filename, 'utf-8');
+    if (isJson) {
+      const jsonObject = JSON.parse(file);
+      if (typeof jsonObject !== 'object') {
+        throw new Error(`Expected ${filename} to be an object`);
       }
-      break;
+      await writeFile(
+        filename,
+        JSON.stringify({ ...jsonObject, config }, null, 2).concat('\n'),
+      );
+    } else if (filename.endsWith('.yml')) {
+      const yamlObject = YAML.parse(file);
+      await writeFile(
+        filename,
+        YAML.stringify({ ...yamlObject, extends: config }),
+      );
     }
-    case 'skip':
-      break;
-    default:
-      throw new Error(`Unknown action ${action}`);
   }
 }
+
 /**
  * Used to create the prompt for the user to select how to handle the config file.
- * @param configKeyName - The KeyName of the config file
  * @param js - Disable merge option for js files.
  * @returns The choices for the prompt.
  */
-function makeConfigsPrompt(configKeyName: KeyNames, js = false) {
-  return {
-    choices: [
-      {
-        key: 'o',
-        name: 'overwrite',
-        value: 'overwrite',
-        short: 'Overwriting File',
+function getConfigActions(js = false) {
+  return [
+    {
+      key: 'o',
+      name: 'overwrite',
+      value: 'overwrite',
+      short: 'Overwriting File',
+    },
+    {
+      key: 'm',
+      name: 'merge',
+      value: 'merge',
+      short: 'Merging File',
+      disabled: js,
+    },
+    {
+      key: 's',
+      name: 'skip',
+      value: 'skip',
+      short: 'Skipping File',
+    },
+  ];
+}
+
+function getConfigs() {
+  return [
+    {
+      choice: {
+        name: 'tsconfig',
+        value: 'tsconfig.json',
+        checked: true,
       },
-      {
-        key: 'm',
-        name: 'merge',
-        value: 'merge',
-        short: 'Merging File',
-        disabled: js,
+      config: {
+        compilerOptions: {
+          allowJs: true,
+          esModuleInterop: true,
+          moduleResolution: 'node',
+          outDir: 'lib',
+          sourceMap: true,
+          strict: true,
+          target: 'es2020',
+        },
+        include: ['./src/**/*'],
       },
-      {
-        key: 's',
-        name: 'skip',
-        value: 'skip',
-        short: 'Skipping File',
+    },
+    {
+      choice: {
+        name: 'tsconfigCjs',
+        value: 'tsconfig.cjs.json',
+        checked: true,
       },
-    ],
-    type: 'list',
-    default: 0,
-    name: configKeyName,
-  };
+      config: {
+        extends: './tsconfig.json',
+        compilerOptions: {
+          module: 'commonjs',
+          declaration: true,
+          declarationMap: true,
+        },
+        exclude: ['./src/**/__tests__'],
+      },
+    },
+    {
+      choice: {
+        value: 'tsconfig.esm.json',
+        checked: true,
+        name: 'tsconfigEsm',
+      },
+      config: {
+        extends: './tsconfig.cjs.json',
+        compilerOptions: {
+          module: 'es2020',
+          outDir: 'lib-esm',
+        },
+      },
+    },
+    {
+      choice: {
+        value: 'babel.config.js',
+        checked: true,
+        name: 'babel',
+      },
+      config: `module.exports = { 
+    presets: ['@babel/preset-typescript'], 
+    plugins: ['@babel/plugin-transform-modules-commonjs'], 
+   };`,
+    },
+    {
+      choice: {
+        name: 'eslint',
+        value: '.eslintrc.yml',
+        checked: true,
+      },
+      config: 'cheminfo-typescript',
+    },
+  ];
 }

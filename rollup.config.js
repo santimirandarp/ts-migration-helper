@@ -1,4 +1,6 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import pluginJson from '@rollup/plugin-json';
 
 export default {
   input: './lib-esm/index.js',
@@ -7,11 +9,11 @@ export default {
     format: 'esm',
     banner: '#!/usr/bin/env node',
   },
-  plugins: [nodeResolve() /*commonjs(),  pluginJson()*/],
+  plugins: [nodeResolve(), commonjs(), pluginJson()],
   external: [
     'chalk',
     'yaml',
-    'inquirer',
+    '@inquirer',
     'fs',
     'path',
     'child_process',
