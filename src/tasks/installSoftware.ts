@@ -60,6 +60,7 @@ export async function installSoftware() {
   if (answers.length) {
     try {
       const command = `npm i -D ${answers.join(' ')}`;
+      console.log('This will take a few seconds', chalk.blue(command));
       await execAsync(command);
       console.log(chalk.green('Installed Software'), command);
     } catch (e) {

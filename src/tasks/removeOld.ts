@@ -30,20 +30,23 @@ async function removeOldLocal() {
     message: 'Remove ...?',
     choices: removes.map(({ choice }) => choice),
   });
+  console.log(answers);
   const commands = [];
   for (const {
     action,
     choice: { value },
   } of removes) {
-    if (answers.includes(value)) continue;
+    if (!answers.includes(value)) continue;
 
     switch (action) {
       case 'npmRemove':
         commands.push(value);
         break;
       case 'removeFile':
-        if (await fileExists(value)) await unlink(value);
-        console.log(chalk.blue(value), ' --> ', chalk.green('removed'));
+        if (await fileExists(value)) {
+          await unlink(value);
+          console.log(chalk.blue(value), ' --> ', chalk.green('removed'));
+        }
         break;
       default:
         break;
@@ -51,8 +54,8 @@ async function removeOldLocal() {
   }
 
   if (commands.length) {
-    const npmCommand = commands.join(' ');
-    await execAsync(`npm remove ${npmCommand}`);
+    const npmCommand = `npm remove ${commands.join(' ')}`;
+    await execAsync(npmCommand);
     console.log(chalk.blue(npmCommand, ' --> ', chalk.green('done.')));
   }
 }
@@ -87,7 +90,7 @@ function makeRemoveChoices(): RemoveChoice[] {
       action: 'removeFile',
       choice: {
         name: 'Babel',
-        value: '.babelrc',
+        value: '.babelrc.json',
         checked: true,
       },
     },
