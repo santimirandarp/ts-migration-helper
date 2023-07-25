@@ -44,20 +44,21 @@ async function configureSoftware() {
     const msg = 'Configuring Software';
     printYellow(`Section: ${msg}`);
     const configs = getConfigs();
+    // filenames to add
     const answers = await checkbox({
         message: 'Which config files would you like to add?',
         choices: configs.map(({ choice }) => choice),
     });
     if (answers.length === 0)
         return;
-    console.log(answers);
+    // because the object is complex, we map over the options
+    // rather than the answers/responses.
     for (const item of configs) {
         try {
-            const { value: filename, name } = item.choice;
+            const filename = item.choice.value;
             const endsWithJS = filename.endsWith('.js');
-            if (!answers.includes(name))
+            if (!answers.includes(filename))
                 continue;
-            console.log(answers);
             if (await fileExists(filename)) {
                 const action = await select({
                     message: `How to handle ${filename}?`,
