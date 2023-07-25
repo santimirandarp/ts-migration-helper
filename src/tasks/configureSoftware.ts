@@ -6,7 +6,7 @@ import YAML from 'yaml';
 import { fileExists, printRed, printYellow } from '../utils/index.js';
 
 /**
- * Offers a way to add the config files to the most common config files.
+ * Prompts to add config files to the project.
  */
 export async function configureSoftware() {
   const msg = 'Configuring Software';
@@ -14,18 +14,19 @@ export async function configureSoftware() {
 
   const configs = getConfigs();
 
+  // filenames to add
   const answers = await checkbox({
-    message: 'Config Files (no overwrite without prompting):',
+    message: 'Which config files would you like to add?',
     choices: configs.map(({ choice }) => choice),
   });
   if (answers.length === 0) return;
-
+  // because the object is complex, we map over the options
+  // rather than the answers/responses.
   for (const item of configs) {
     try {
-      const { value: filename, name } = item.choice;
+      const filename = item.choice.value;
       const endsWithJS = filename.endsWith('.js');
-      if (!answers.includes(name)) continue;
-
+      if (!answers.includes(filename)) continue;
       if (await fileExists(filename)) {
         const action = await select({
           message: `How to handle ${filename}?`,

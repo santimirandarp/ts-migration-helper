@@ -2,7 +2,7 @@ import chalk from 'chalk';
 
 import {
   installSoftware,
-  configureSoftware as cf,
+  configureSoftware,
   updatePackageJson,
   updateGitignore,
   removeOld,
@@ -25,7 +25,7 @@ export async function run() {
 
   await removeOld();
   await installSoftware();
-  await cf();
+  await configureSoftware();
   await updateGitignore();
   await updatePackageJson();
   await replaceWorkflow();

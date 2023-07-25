@@ -38,24 +38,26 @@ async function fileExists(path) {
 }
 
 /**
- * Offers a way to add the config files to the most common config files.
+ * Prompts to add config files to the project.
  */
 async function configureSoftware() {
     const msg = 'Configuring Software';
     printYellow(`Section: ${msg}`);
     const configs = getConfigs();
     const answers = await checkbox({
-        message: 'Config Files (no overwrite without prompting):',
+        message: 'Which config files would you like to add?',
         choices: configs.map(({ choice }) => choice),
     });
     if (answers.length === 0)
         return;
+    console.log(answers);
     for (const item of configs) {
         try {
             const { value: filename, name } = item.choice;
             const endsWithJS = filename.endsWith('.js');
             if (!answers.includes(name))
                 continue;
+            console.log(answers);
             if (await fileExists(filename)) {
                 const action = await select({
                     message: `How to handle ${filename}?`,
@@ -264,6 +266,7 @@ async function installSoftware() {
     if (answers.length) {
         try {
             const command = `npm i -D ${answers.join(' ')}`;
+            console.log('This will take a few seconds', chalk.blue(command));
             await execAsync(command);
             console.log(chalk.green('Installed Software'), command);
         }
@@ -436,8 +439,8 @@ async function removeOldLocal() {
         }
     }
     if (commands.length) {
-        const npmCommand = commands.join(' ');
-        await execAsync(`npm remove ${npmCommand}`);
+        const npmCommand = `npm remove ${commands.join(' ')}`;
+        await execAsync(npmCommand);
         console.log(chalk.blue(npmCommand, ' --> ', chalk.green('done.')));
     }
 }
