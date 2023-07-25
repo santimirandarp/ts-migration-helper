@@ -1,10 +1,10 @@
-import { statSync as stat } from 'node:fs';
+import { access } from 'fs/promises';
 
-export function fileExists(path: string) {
+export async function fileExists(path: string) {
   try {
-    stat(path);
+    await access(path);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
