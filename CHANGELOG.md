@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/santimirandarp/ts-migration-helper/compare/v1.0.0...v1.1.0) (2023-07-25)
+
+
+### Features
+
+* publish basic version ([4942ba6](https://github.com/santimirandarp/ts-migration-helper/commit/4942ba60f7f687ff515795d3db68457594c6f37e))
+
 ## 1.0.0 (2023-07-25)
 
 
