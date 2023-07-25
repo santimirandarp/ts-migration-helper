@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/santimirandarp/ts-migration-helper/compare/v2.0.0...v2.0.1) (2023-07-25)
+
+
+### Bug Fixes
+
+* confusion bw filename with name property ([bdbd9f9](https://github.com/santimirandarp/ts-migration-helper/commit/bdbd9f9a37aef669bfab877473217e09621974b0))
+
 ## [2.0.0](https://github.com/santimirandarp/ts-migration-helper/compare/v1.1.0...v2.0.0) (2023-07-05)
 
 
