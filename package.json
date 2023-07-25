@@ -36,7 +36,6 @@
   },
   "homepage": "https://github.com/santimirandarp/ts-migration-helper#readme",
   "devDependencies": {
-    "@types/chalk": "^2.2.0",
     "@types/inquirer": "^9.0.3",
     "@types/jest": "^29.5.2",
     "@types/mute-stream": "^0.0.1",

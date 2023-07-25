@@ -13,4 +13,4 @@ jobs:
       npm: true
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
-      npm-token: ${{ secrets.RELEASE }}
+      npm-token: ${{ secrets.NPM_TOKEN }}
