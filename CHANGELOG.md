@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.0 (2023-07-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* error in key
+
+### workflow
+
+* error in key ([2c7a3e5](https://github.com/santimirandarp/ts-migration-helper/commit/2c7a3e5a7fdf8d3068556bbcd776beda5179c730))
+
+
+### Features
+
+* first working code ([436a3f2](https://github.com/santimirandarp/ts-migration-helper/commit/436a3f21122630df4dbaa7cea5c62ae64c8e6756))
+
 ## [2.0.0](https://github.com/santimirandarp/ts-migration-helper/compare/v1.1.0...v2.0.0) (2023-07-05)
 
 
