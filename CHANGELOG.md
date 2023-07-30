@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/santimirandarp/ts-migration-helper/compare/v1.0.0...v1.0.1) (2023-07-30)
+
+
+### Bug Fixes
+
+* create path if it does not exist. ([212d29f](https://github.com/santimirandarp/ts-migration-helper/commit/212d29f6734378fd61cf67ca03e078badd5f381e))
+
 ## 1.0.0 (2023-07-25)
 
 
