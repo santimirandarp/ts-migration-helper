@@ -1,8 +1,9 @@
-import { writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
 
 import { input, confirm } from '@inquirer/prompts';
 import got from 'got';
 
+import { fileExists } from '../utils/fileExists.js';
 import { printYellow, printRed } from '../utils/print.js';
 
 export async function replaceWorkflow() {
@@ -34,6 +35,9 @@ export async function replaceWorkflow() {
     const updated = branchName
       ? data.replace('$default-branch', branchName.trim())
       : data;
+    if (!(await fileExists(path))) {
+      await mkdir('.github/workflows', { recursive: true });
+    }
     await writeFile(path, updated);
   } catch (e) {
     printRed(msg);
