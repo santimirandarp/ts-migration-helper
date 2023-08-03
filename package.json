@@ -38,13 +38,11 @@
   "devDependencies": {
     "@types/inquirer": "^9.0.3",
     "@types/jest": "^29.5.2",
-    "@types/mute-stream": "^0.0.1",
     "eslint": "^8.43.0",
     "eslint-config-cheminfo-typescript": "^11.3.1",
     "prettier": "^2.8.8",
     "rimraf": "^5.0.1",
     "rollup": "^3.26.0",
-    "ts-node": "^10.9.1",
     "typescript": "^5.1.5"
   },
   "dependencies": {

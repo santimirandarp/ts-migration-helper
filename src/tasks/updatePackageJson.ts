@@ -46,7 +46,7 @@ export async function updatePackageJson() {
       }
     });
 
-    if (json.scripts.test) {
+    if (json.scripts.test && !json.scripts.test.includes('check-types')) {
       json.scripts.test += ' && npm run check-types';
     }
     json.scripts = sortByKeys(json.scripts);

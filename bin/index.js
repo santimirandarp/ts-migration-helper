@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
-import { access, writeFile, readFile } from 'fs/promises';
+import { access, writeFile, readFile, mkdir } from 'fs/promises';
 import { checkbox, select, confirm, input } from '@inquirer/prompts';
 import YAML from 'yaml';
 import { exec } from 'node:child_process';
@@ -220,12 +220,12 @@ const installs = [
         command: 'typescript',
         choice: {
             name: 'TypeScript',
-            value: 'ts',
+            value: 'typescript',
             checked: true,
         },
     },
     {
-        command: 'eslint-config-cheminfo-typescript',
+        command: 'eslint-config-cheminfo-typescript eslint-plugin-jest',
         choice: {
             name: 'cheminfo-eslint',
             value: 'eslint',
@@ -265,8 +265,15 @@ async function installSoftware() {
         choices: installs.map((install) => install.choice),
     });
     if (answers.length) {
+        let commands = [];
+        for (let i = 0; i < installs.length; i++) {
+            const install = installs[i];
+            if (answers.includes(install.choice.value)) {
+                commands.push(install.command);
+            }
+        }
         try {
-            const command = `npm i -D ${answers.join(' ')}`;
+            const command = `npm i -D ${commands.join(' ')}`;
             console.log('This will take a few seconds', chalk.blue(command));
             await execAsync(command);
             console.log(chalk.green('Installed Software'), command);
@@ -317,7 +324,7 @@ async function updatePackageJson() {
                 delete json.scripts[script];
             }
         });
-        if (json.scripts.test) {
+        if (json.scripts.test && !json.scripts.test.includes('check-types')) {
             json.scripts.test += ' && npm run check-types';
         }
         json.scripts = sortByKeys(json.scripts);
@@ -369,35 +376,51 @@ async function updateGitignore() {
     }
 }
 
+const sources = [
+    {
+        webSource: 'https://raw.githubusercontent.com/cheminfo/.github/main/workflow-templates/nodejs-ts.yml',
+        path: '.github/workflows/nodejs.yml',
+    },
+    {
+        webSource: 'https://raw.githubusercontent.com/cheminfo/generator-cheminfo/main/.github/workflows/release.yml',
+        path: '.github/workflows/release.yml',
+    },
+    {
+        webSource: 'https://raw.githubusercontent.com/cheminfo/wdf-parser/main/.github/workflows/typedoc.yml',
+        path: '.github/workflows/typedoc.yml',
+    },
+];
 async function replaceWorkflow() {
-    const webSource = 'https://raw.githubusercontent.com/cheminfo/.github/main/workflow-templates/nodejs-ts.yml';
-    const path = '.github/workflows/nodejs.yml';
-    const msg = 'Replacing workflow';
-    printYellow(`Section: ${msg}`);
-    const data = await got(webSource).text();
-    const answer = await confirm({
-        message: 'New nodejs Workflow ?',
-        default: true,
-    });
-    if (!answer) {
-        printYellow('Skipping package.json update.');
-        return;
-    }
     const branchName = await input({
         message: 'What is the default branch of your repository? master/main/other',
-        default: '',
+        default: 'main',
     });
-    try {
-        printYellow(msg);
-        const updated = branchName
-            ? data.replace('$default-branch', branchName.trim())
-            : data;
-        await writeFile(path, updated);
-    }
-    catch (e) {
-        printRed(msg);
-        if (typeof e === 'string')
-            throw new Error(e);
+    const msg = 'Replacing workflows';
+    printYellow(`Section: ${msg}`);
+    for (const { webSource, path } of sources) {
+        const data = await got(webSource).text();
+        const answer = await confirm({
+            message: `New ${path.split('/').pop() || ''} Workflow? (Warning: overwrites files with the same name)`,
+            default: true,
+        });
+        if (!answer) {
+            continue;
+        }
+        try {
+            printYellow(msg);
+            const updated = branchName
+                ? data.replace('$default-branch', branchName.trim())
+                : data;
+            if (!(await fileExists(path))) {
+                await mkdir('.github/workflows', { recursive: true });
+            }
+            await writeFile(path, updated);
+        }
+        catch (e) {
+            printRed(msg);
+            if (typeof e === 'string')
+                throw new Error(e);
+        }
     }
 }
 
@@ -482,6 +505,31 @@ function makeRemoveChoices() {
     ];
 }
 
+// prompt to run ncu -u
+async function npmCheckUpdates() {
+    const msg = 'npm-check-updates';
+    printYellow(`Section: ${msg}`);
+    const answer = await confirm({
+        message: 'Run npm-check-updates -u ?',
+        default: true,
+    });
+    if (!answer) {
+        printYellow('Skipping npm-check-updates.');
+        return;
+    }
+    try {
+        const command = 'npx npm-check-updates -u';
+        console.log('This will take a few seconds', chalk.blue(command));
+        await execAsync(command);
+        console.log(chalk.green('ran npm-check-updates -u'));
+    }
+    catch (e) {
+        printRed(msg);
+        if (typeof e === 'string')
+            throw new Error(e);
+    }
+}
+
 /**
  * Please update if the guide changes.
  * https://github.com/cheminfo/generator-cheminfo/blob/main/ts-migration.md
@@ -492,6 +540,7 @@ async function run() {
         console.error('\npackage.json not found. Run this program in the project root.');
         process.exit(1);
     }
+    await npmCheckUpdates();
     await removeOld();
     await installSoftware();
     await configureSoftware();

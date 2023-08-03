@@ -9,12 +9,12 @@ export const installs = [
     command: 'typescript',
     choice: {
       name: 'TypeScript',
-      value: 'ts',
+      value: 'typescript',
       checked: true,
     },
   },
   {
-    command: 'eslint-config-cheminfo-typescript',
+    command: 'eslint-config-cheminfo-typescript eslint-plugin-jest',
     choice: {
       name: 'cheminfo-eslint',
       value: 'eslint',
@@ -58,8 +58,15 @@ export async function installSoftware() {
   });
 
   if (answers.length) {
+    let commands: string[] = [];
+    for (let i = 0; i < installs.length; i++) {
+      const install = installs[i];
+      if (answers.includes(install.choice.value)) {
+        commands.push(install.command);
+      }
+    }
     try {
-      const command = `npm i -D ${answers.join(' ')}`;
+      const command = `npm i -D ${commands.join(' ')}`;
       console.log('This will take a few seconds', chalk.blue(command));
       await execAsync(command);
       console.log(chalk.green('Installed Software'), command);

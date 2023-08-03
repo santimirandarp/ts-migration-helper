@@ -9,6 +9,7 @@ import {
   replaceWorkflow,
 } from './tasks/index.js';
 import { fileExists } from './utils/index.js';
+import { npmCheckUpdates } from './tasks/npmCheckUpdates.js';
 /**
  * Please update if the guide changes.
  * https://github.com/cheminfo/generator-cheminfo/blob/main/ts-migration.md
@@ -22,7 +23,7 @@ export async function run() {
     );
     process.exit(1);
   }
-
+  await npmCheckUpdates();
   await removeOld();
   await installSoftware();
   await configureSoftware();
