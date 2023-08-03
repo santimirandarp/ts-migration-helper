@@ -1,6 +1,6 @@
 {
   "name": "ts-migration-helper",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Migrate simple JS projects to Typescript",
   "main": "./bin/index.js",
   "bin": "./bin/index.js",
