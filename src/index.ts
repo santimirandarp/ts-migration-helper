@@ -33,7 +33,6 @@ const tasks = [
     process.exit(1);
   }
   for (const task of tasks) await task();
-  return;
 })()
   .then(() => {
     console.log(
