@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/santimirandarp/ts-migration-helper/compare/v3.0.1...v3.1.0) (2023-08-04)
+
+
+### Features
+
+* simplify questionnaire ([2684e34](https://github.com/santimirandarp/ts-migration-helper/commit/2684e34a4e5b0cc37911e95e15132456a2dfed47))
+
 ## [3.0.1](https://github.com/santimirandarp/ts-migration-helper/compare/v3.0.0...v3.0.1) (2023-08-04)
 
 
