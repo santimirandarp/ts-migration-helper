@@ -58,7 +58,7 @@ export async function installSoftware() {
   });
 
   if (answers.length) {
-    let commands: string[] = [];
+    const commands: string[] = [];
     for (const install of installs) {
       if (answers.includes(install.choice.value)) {
         commands.push(install.command);
