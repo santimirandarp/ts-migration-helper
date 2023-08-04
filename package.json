@@ -24,7 +24,8 @@
     "prettier-write": "prettier --write src",
     "tidy": "npm run eslint-fix && npm run prettier-write && npm run check-types",
     "test-only": "echo hello",
-    "tsc": "npm run clean && tsc"
+    "tsc": "npm run clean && tsc",
+    "start": "node ./bin/index.js"
   },
   "repository": {
     "type": "git",
