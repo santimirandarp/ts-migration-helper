@@ -36,17 +36,17 @@
   "homepage": "https://github.com/santimirandarp/ts-migration-helper#readme",
   "devDependencies": {
     "@types/inquirer": "^9.0.3",
-    "@types/jest": "^29.5.2",
-    "eslint": "^8.43.0",
-    "eslint-config-cheminfo-typescript": "^11.3.1",
-    "prettier": "^2.8.8",
+    "@types/jest": "^29.5.3",
+    "eslint": "^8.46.0",
+    "eslint-config-cheminfo-typescript": "^12.0.4",
+    "prettier": "^3.0.1",
     "rimraf": "^5.0.1",
-    "rollup": "^3.26.0",
-    "typescript": "^5.1.5"
+    "rollup": "^3.27.2",
+    "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@inquirer/prompts": "^2.3.0",
-    "chalk": "^5.2.0",
+    "@inquirer/prompts": "^3.0.1",
+    "chalk": "^5.3.0",
     "got": "^13.0.0",
     "yaml": "^2.3.1"
   },
