@@ -16,6 +16,15 @@ import {
  * Please update if the guide changes.
  * https://github.com/cheminfo/generator-cheminfo/blob/main/ts-migration.md
  */
+const tasks = [
+  npmCheckUpdates,
+  removeOld,
+  installSoftware,
+  configureSoftware,
+  updateGitignore,
+  updatePackageJson,
+  replaceWorkflow,
+];
 (async function run() {
   if (!existsSync('package.json')) {
     console.error(
@@ -23,13 +32,8 @@ import {
     );
     process.exit(1);
   }
-  await npmCheckUpdates();
-  await removeOld();
-  await installSoftware();
-  await configureSoftware();
-  await updateGitignore();
-  await updatePackageJson();
-  await replaceWorkflow();
+  for (const task of tasks) await task();
+  return;
 })()
   .then(() => {
     console.log(
