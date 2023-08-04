@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.0.0](https://github.com/santimirandarp/ts-migration-helper/compare/v2.0.1...v3.0.0) (2023-08-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* separate tasks
+
+### Bug Fixes
+
+* remove unused file ([f4f007e](https://github.com/santimirandarp/ts-migration-helper/commit/f4f007ebb84fc5c7709470c39b298e0dc3d1adc6))
+
+
+### Code Refactoring
+
+* separate tasks ([8887ea1](https://github.com/santimirandarp/ts-migration-helper/commit/8887ea1dd8a1f76d5f519ed12ae9c1a44730b950))
+
 ## [2.0.1](https://github.com/santimirandarp/ts-migration-helper/compare/v2.0.0...v2.0.1) (2023-08-04)
 
 
