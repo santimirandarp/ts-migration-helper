@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import chalk from 'chalk';
-
 import { existsSync } from 'node:fs';
+
+import chalk from 'chalk';
 
 import {
   installSoftware,
