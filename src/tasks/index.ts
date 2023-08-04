@@ -5,3 +5,4 @@ export * from './updatePackageJson.js';
 export * from './updateGitignore.js';
 export * from './replaceWorkflow.js';
 export * from './removeOld.js';
+export * from './npmCheckUpdates.js';

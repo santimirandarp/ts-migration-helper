@@ -1,9 +1,9 @@
-import { readFile, writeFile } from 'fs/promises';
+import { readFileSync, writeFileSync } from 'fs';
 
 import { confirm } from '@inquirer/prompts';
 import chalk from 'chalk';
 
-import { printRed, printYellow } from '../utils/print.js';
+import { printYellow } from '../utils/print.js';
 import { sortByKeys } from '../utils/sortByKeys.js';
 
 const SCRIPTS_TO_DELETE = ['compile', 'prePublishOnly', 'jest'];
@@ -29,31 +29,27 @@ export async function updatePackageJson() {
     printYellow('Skipping package.json update.');
     return;
   }
-  try {
-    const fileContents = await readFile('package.json', 'utf8');
-    const json = JSON.parse(fileContents);
 
-    json.main = './lib/index.js';
-    json.module = './lib-esm/index.js';
-    json.types = './lib/index.d.ts';
-    json.files = ['src', 'lib', 'lib-esm'];
-    json.scripts = { ...json.scripts, ...UPDATE_SCRIPTS };
+  const json = JSON.parse(readFileSync('package.json', 'utf8'));
 
-    SCRIPTS_TO_DELETE.forEach((script) => {
-      if (script in json.scripts) {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-        delete json.scripts[script];
-      }
-    });
+  json.main = './lib/index.js';
+  json.module = './lib-esm/index.js';
+  json.types = './lib/index.d.ts';
+  json.files = ['src', 'lib', 'lib-esm'];
+  json.scripts = { ...json.scripts, ...UPDATE_SCRIPTS };
 
-    if (json.scripts.test && !json.scripts.test.includes('check-types')) {
-      json.scripts.test += ' && npm run check-types';
+  SCRIPTS_TO_DELETE.forEach((script) => {
+    if (script in json.scripts) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete json.scripts[script];
     }
-    json.scripts = sortByKeys(json.scripts);
-    await writeFile('package.json', `${JSON.stringify(json, null, 2)}\n`);
-    console.log(chalk.green('updated package.json'));
-  } catch (e) {
-    printRed(msg);
-    if (typeof e === 'string') throw new Error(e);
+  });
+
+  if (json.scripts.test && !json.scripts.test.includes('check-types')) {
+    json.scripts.test += ' && npm run check-types';
   }
+  json.scripts = sortByKeys(json.scripts);
+  writeFileSync('package.json', `${JSON.stringify(json, null, 2)}\n`);
+  console.log(chalk.green('updated package.json'));
+  return;
 }

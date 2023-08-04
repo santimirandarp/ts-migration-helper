@@ -1,61 +1,41 @@
-import { mkdir, writeFile } from 'fs/promises';
-
+import { existsSync, mkdirSync } from 'fs';
+import { join } from 'node:path';
 import { input, confirm } from '@inquirer/prompts';
 import got from 'got';
 
-import { fileExists } from '../utils/fileExists.js';
-import { printYellow, printRed } from '../utils/print.js';
+import { writeDataToFile, printYellow } from '../utils/index.js';
 
-const sources = [
-  {
-    webSource:
-      'https://raw.githubusercontent.com/cheminfo/.github/main/workflow-templates/nodejs-ts.yml',
-    path: '.github/workflows/nodejs.yml',
-  },
-  {
-    webSource:
-      'https://raw.githubusercontent.com/cheminfo/generator-cheminfo/main/.github/workflows/release.yml',
-    path: '.github/workflows/release.yml',
-  },
-  {
-    webSource:
-      'https://raw.githubusercontent.com/cheminfo/wdf-parser/main/.github/workflows/typedoc.yml',
-    path: '.github/workflows/typedoc.yml',
-  },
-];
+const remoteBase =
+  'https://raw.githubusercontent.com/cheminfo/.github/main/workflow-templates/';
+const localBase = '.github/workflows';
+const sources = ['nodejs-ts.yml', 'typedoc.yml', 'release.yml', 'lactame.yml'];
+
 export async function replaceWorkflow() {
   const branchName = await input({
-    message: 'What is the default branch of your repository? master/main/other',
+    message: 'What is the default branch name ? /main/master/other',
     default: 'main',
   });
-  const msg = 'Replacing workflows';
+  const msg = 'Replacing workflows...';
   printYellow(`Section: ${msg}`);
 
-  for (const { webSource, path } of sources) {
-    const data = await got(webSource).text();
+  for (const source of sources) {
+    const data = await got(join(remoteBase, source)).text();
 
     const answer = await confirm({
-      message: `New ${
-        path.split('/').pop() || ''
-      } Workflow? (Warning: overwrites files with the same name)`,
+      message: `Add ${source} Workflow ?`,
       default: true,
     });
     if (!answer) {
       continue;
     }
 
-    try {
-      printYellow(msg);
-      const updated = branchName
-        ? data.replace('$default-branch', branchName.trim())
-        : data;
-      if (!(await fileExists(path))) {
-        await mkdir('.github/workflows', { recursive: true });
-      }
-      await writeFile(path, updated);
-    } catch (e) {
-      printRed(msg);
-      if (typeof e === 'string') throw new Error(e);
+    printYellow(msg);
+    const updated = branchName
+      ? data.replace('$default-branch', branchName.trim())
+      : data;
+    if (!existsSync(join(localBase, source))) {
+      mkdirSync('.github/workflows', { recursive: true });
     }
+    await writeDataToFile(join(localBase, source), updated);
   }
 }

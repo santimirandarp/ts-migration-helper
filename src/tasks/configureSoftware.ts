@@ -1,9 +1,13 @@
-import { readFile, writeFile } from 'fs/promises';
+import {
+  existsSync,
+  readFileSync as readFile,
+  writeFileSync as writeFile,
+} from 'fs';
 
 import { select, checkbox } from '@inquirer/prompts';
 import YAML from 'yaml';
 
-import { fileExists, printRed, printYellow } from '../utils/index.js';
+import { printRed, printYellow } from '../utils/index.js';
 
 /**
  * Prompts to add config files to the project.
@@ -27,7 +31,7 @@ export async function configureSoftware() {
       const filename = item.choice.value;
       const endsWithJS = filename.endsWith('.js');
       if (!answers.includes(filename)) continue;
-      if (await fileExists(filename)) {
+      if (existsSync(filename)) {
         const action = await select({
           message: `How to handle ${filename}?`,
           choices: getConfigActions(endsWithJS),
@@ -56,30 +60,24 @@ async function handleAction(filename: string, config: any, action: string) {
   const isJs = filename.endsWith('.js');
 
   if (action === 'overwrite') {
-    if (isJson) {
-      await writeFile(filename, JSON.stringify(config, null, 2).concat('\n'));
-    } else if (isYaml) {
-      await writeFile(filename, YAML.stringify({ extends: config }));
-    } else if (isJs) {
-      await writeFile(filename, config as string);
-    }
+    isJson
+      ? writeFile(filename, JSON.stringify(config, null, 2).concat('\n'))
+      : isYaml
+      ? writeFile(filename, YAML.stringify({ extends: config }))
+      : isJs
+      ? writeFile(filename, config as string)
+      : null;
   } else if (action === 'merge') {
     const file = await readFile(filename, 'utf-8');
     if (isJson) {
       const jsonObject = JSON.parse(file);
-      if (typeof jsonObject !== 'object') {
-        throw new Error(`Expected ${filename} to be an object`);
-      }
-      await writeFile(
+      writeFile(
         filename,
         JSON.stringify({ ...jsonObject, config }, null, 2).concat('\n'),
       );
     } else if (filename.endsWith('.yml')) {
       const yamlObject = YAML.parse(file);
-      await writeFile(
-        filename,
-        YAML.stringify({ ...yamlObject, extends: config }),
-      );
+      writeFile(filename, YAML.stringify({ ...yamlObject, extends: config }));
     }
   }
 }

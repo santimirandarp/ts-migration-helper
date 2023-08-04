@@ -1,8 +1,7 @@
 import { checkbox } from '@inquirer/prompts';
-import chalk from 'chalk';
+import { execSync } from 'node:child_process';
 
-import { execAsync } from '../utils/execAsync.js';
-import { printRed, printYellow } from '../utils/print.js';
+import { printYellow } from '../utils/print.js';
 
 export const installs = [
   {
@@ -65,14 +64,7 @@ export async function installSoftware() {
         commands.push(install.command);
       }
     }
-    try {
-      const command = `npm i -D ${commands.join(' ')}`;
-      console.log('This will take a few seconds', chalk.blue(command));
-      await execAsync(command);
-      console.log(chalk.green('Installed Software'), command);
-    } catch (e) {
-      printRed(msg);
-      if (typeof e === 'string') throw new Error(e);
-    }
+    const command = `npm i -D ${commands.join(' ')}`;
+    return execSync(command);
   }
 }

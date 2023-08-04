@@ -1,5 +1,4 @@
-import chalk from 'chalk';
-
+import { existsSync } from 'node:fs';
 import {
   installSoftware,
   configureSoftware,
@@ -7,17 +6,14 @@ import {
   updateGitignore,
   removeOld,
   replaceWorkflow,
+  npmCheckUpdates,
 } from './tasks/index.js';
-import { fileExists } from './utils/index.js';
-import { npmCheckUpdates } from './tasks/npmCheckUpdates.js';
 /**
  * Please update if the guide changes.
  * https://github.com/cheminfo/generator-cheminfo/blob/main/ts-migration.md
  */
 export async function run() {
-  console.log('\n', chalk.bgRed.yellow('Use at your own risk.'), '\n');
-
-  if (!(await fileExists('package.json'))) {
+  if (!existsSync('package.json')) {
     console.error(
       '\npackage.json not found. Run this program in the project root.',
     );

@@ -1,25 +1,14 @@
-import { unlink } from 'node:fs/promises';
+import { unlinkSync, existsSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 
 import { checkbox } from '@inquirer/prompts';
-import chalk from 'chalk';
 
-import {
-  printYellow,
-  printRed,
-  fileExists,
-  execAsync,
-} from '../utils/index.js';
+import { printYellow } from '../utils/index.js';
 
 export async function removeOld() {
   const msg = 'Removing Old Software';
   printYellow(`Section: ${msg}`);
-
-  try {
-    await removeOldLocal();
-  } catch (e) {
-    printRed(msg);
-    if (typeof e === 'string') throw new Error(e);
-  }
+  return await removeOldLocal();
 }
 /**
  * Prompts the user to remove old config files and software.
@@ -30,7 +19,7 @@ async function removeOldLocal() {
     message: 'Remove ...?',
     choices: removes.map(({ choice }) => choice),
   });
-  console.log(answers);
+
   const commands = [];
   for (const {
     action,
@@ -43,10 +32,7 @@ async function removeOldLocal() {
         commands.push(value);
         break;
       case 'removeFile':
-        if (await fileExists(value)) {
-          await unlink(value);
-          console.log(chalk.blue(value), ' --> ', chalk.green('removed'));
-        }
+        existsSync(value) && unlinkSync(value);
         break;
       default:
         break;
@@ -55,9 +41,9 @@ async function removeOldLocal() {
 
   if (commands.length) {
     const npmCommand = `npm remove ${commands.join(' ')}`;
-    await execAsync(npmCommand);
-    console.log(chalk.blue(npmCommand, ' --> ', chalk.green('done.')));
+    return execSync(npmCommand);
   }
+  return;
 }
 
 type RemoveChoice = {
