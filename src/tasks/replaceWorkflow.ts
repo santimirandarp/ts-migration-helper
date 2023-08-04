@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync } from 'fs';
 import { join } from 'node:path';
 
-import { input, confirm } from '@inquirer/prompts';
+import { checkbox, input } from '@inquirer/prompts';
 import got from 'got';
 
 import { writeDataToFile, printYellow } from '../utils/index.js';
@@ -9,8 +9,36 @@ import { writeDataToFile, printYellow } from '../utils/index.js';
 const remoteBase =
   'https://raw.githubusercontent.com/cheminfo/.github/main/workflow-templates/';
 const localBase = '.github/workflows';
-const sources = ['nodejs-ts.yml', 'typedoc.yml', 'release.yml', 'lactame.yml'];
-
+const selects = [
+  {
+    choice: {
+      name: 'nodejs-ts.yml',
+      value: 'nodejs-ts.yml',
+      checked: true,
+    },
+  },
+  {
+    choice: {
+      name: 'typedoc.yml',
+      value: 'typedoc.yml',
+      checked: true,
+    },
+  },
+  {
+    choice: {
+      name: 'release.yml',
+      value: 'release.yml',
+      checked: true,
+    },
+  },
+  {
+    choice: {
+      name: 'lactame.yml',
+      value: 'lactame.yml',
+      checked: true,
+    },
+  },
+];
 export async function replaceWorkflow() {
   const branchName = await input({
     message: 'What is the default branch name ? /main/master/other',
@@ -19,14 +47,13 @@ export async function replaceWorkflow() {
   const msg = 'Replacing workflows...';
   printYellow(`Section: ${msg}`);
 
-  for (const source of sources) {
+  const answers = await checkbox({
+    message: `Add Workflow ... ?`,
+    choices: selects.map((select) => select.choice),
+  });
+  for (const source of answers) {
+    if (!source) continue;
     const data = await got(join(remoteBase, source)).text();
-
-    const answer = await confirm({
-      message: `Add ${source} Workflow ?`,
-      default: true,
-    });
-    if (!answer) continue;
 
     printYellow(msg);
     const updated = branchName
