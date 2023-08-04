@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.1](https://github.com/santimirandarp/ts-migration-helper/compare/v2.0.0...v2.0.1) (2023-08-04)
+
+
+### Bug Fixes
+
+* linters ([28749e5](https://github.com/santimirandarp/ts-migration-helper/commit/28749e52e5c40a6e01e5c9a50f7418179f64b63e))
+* remove unnecesary files ([13571ef](https://github.com/santimirandarp/ts-migration-helper/commit/13571efb82a25becf208137a701221d86cf34fb5))
+* use const not let ([f3e3361](https://github.com/santimirandarp/ts-migration-helper/commit/f3e33619a3533b36989092b96c81e680c8e85c25))
+* use interface instead of type ([b619181](https://github.com/santimirandarp/ts-migration-helper/commit/b619181902074fbe0af877a3b831b50ead82b9d9))
+
 ## [2.0.0](https://github.com/santimirandarp/ts-migration-helper/compare/v1.1.0...v2.0.0) (2023-08-04)
 
 
