@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/santimirandarp/ts-migration-helper/compare/v3.0.0...v3.0.1) (2023-08-04)
+
+
+### Bug Fixes
+
+* add start script ([469e06c](https://github.com/santimirandarp/ts-migration-helper/commit/469e06c0e0b1f2c78f2e6bb056165ab367507725))
+
 ## [3.0.0](https://github.com/santimirandarp/ts-migration-helper/compare/v2.0.1...v3.0.0) (2023-08-04)
 
 
