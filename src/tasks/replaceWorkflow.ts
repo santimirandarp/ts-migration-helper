@@ -35,7 +35,7 @@ const selects = [
     choice: {
       name: 'lactame.yml',
       value: 'lactame.yml',
-      checked: true,
+      checked: false,
     },
   },
 ];
