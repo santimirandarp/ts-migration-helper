@@ -1,24 +1,14 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
-import { access, writeFile, readFile, mkdir } from 'fs/promises';
-import { checkbox, select, confirm, input } from '@inquirer/prompts';
+import { existsSync as existsSync$1, unlinkSync } from 'node:fs';
+import { existsSync, writeFileSync, readFileSync, mkdirSync } from 'fs';
+import { select, checkbox, confirm, input } from '@inquirer/prompts';
 import YAML from 'yaml';
-import { exec } from 'node:child_process';
+import { basename } from 'path';
+import { execSync } from 'node:child_process';
+import { readFile, writeFile } from 'fs/promises';
+import { join } from 'node:path';
 import got from 'got';
-import { unlink } from 'node:fs/promises';
-
-async function execAsync(command) {
-    return new Promise(function ex(resolve, reject) {
-        exec(command, (error, stdout) => {
-            if (error) {
-                return reject(error);
-            }
-            else {
-                return resolve(stdout);
-            }
-        });
-    });
-}
 
 function printYellow(msg) {
     console.log('\n', chalk.underline.yellow(msg), '\n');
@@ -27,14 +17,38 @@ function printRed(msg) {
     console.log(chalk.red('Error ', msg));
 }
 
-async function fileExists(path) {
-    try {
-        await access(path);
-        return true;
+/**
+ * Prompts to write data, overwrite, or skip.
+ */
+async function writeDataToFile(filePath, data) {
+    if (!existsSync(filePath)) {
+        return writeFileSync(filePath, data);
     }
-    catch {
-        return false;
-    }
+    const action = await select({
+        message: `How to handle ${basename(filePath)}?`,
+        choices: getFileActions(),
+    });
+    return action === 'overwrite' && writeFileSync(filePath, data);
+}
+function getFileActions() {
+    return [
+        {
+            key: 'o',
+            name: 'overwrite',
+            value: 'overwrite',
+            short: 'Overwriting File',
+        },
+        {
+            key: 's',
+            name: 'skip',
+            value: 'skip',
+            short: 'Skipping File',
+        },
+    ];
+}
+
+function sortByKeys(obj) {
+    return Object.fromEntries(Object.entries(obj).sort(([a], [b]) => a.localeCompare(b)));
 }
 
 /**
@@ -59,7 +73,7 @@ async function configureSoftware() {
             const endsWithJS = filename.endsWith('.js');
             if (!answers.includes(filename))
                 continue;
-            if (await fileExists(filename)) {
+            if (existsSync(filename)) {
                 const action = await select({
                     message: `How to handle ${filename}?`,
                     choices: getConfigActions(endsWithJS),
@@ -89,28 +103,23 @@ async function handleAction(filename, config, action) {
     const isYaml = filename.endsWith('.yml');
     const isJs = filename.endsWith('.js');
     if (action === 'overwrite') {
-        if (isJson) {
-            await writeFile(filename, JSON.stringify(config, null, 2).concat('\n'));
-        }
-        else if (isYaml) {
-            await writeFile(filename, YAML.stringify({ extends: config }));
-        }
-        else if (isJs) {
-            await writeFile(filename, config);
-        }
+        return isJson
+            ? writeFileSync(filename, JSON.stringify(config, null, 2).concat('\n'))
+            : isYaml
+                ? writeFileSync(filename, YAML.stringify({ extends: config }))
+                : isJs
+                    ? writeFileSync(filename, config)
+                    : null;
     }
     else if (action === 'merge') {
-        const file = await readFile(filename, 'utf-8');
+        const file = readFileSync(filename, 'utf-8');
         if (isJson) {
             const jsonObject = JSON.parse(file);
-            if (typeof jsonObject !== 'object') {
-                throw new Error(`Expected ${filename} to be an object`);
-            }
-            await writeFile(filename, JSON.stringify({ ...jsonObject, config }, null, 2).concat('\n'));
+            return writeFileSync(filename, JSON.stringify({ ...jsonObject, config }, null, 2).concat('\n'));
         }
         else if (filename.endsWith('.yml')) {
             const yamlObject = YAML.parse(file);
-            await writeFile(filename, YAML.stringify({ ...yamlObject, extends: config }));
+            return writeFileSync(filename, YAML.stringify({ ...yamlObject, extends: config }));
         }
     }
 }
@@ -266,28 +275,14 @@ async function installSoftware() {
     });
     if (answers.length) {
         let commands = [];
-        for (let i = 0; i < installs.length; i++) {
-            const install = installs[i];
+        for (const install of installs) {
             if (answers.includes(install.choice.value)) {
                 commands.push(install.command);
             }
         }
-        try {
-            const command = `npm i -D ${commands.join(' ')}`;
-            console.log('This will take a few seconds', chalk.blue(command));
-            await execAsync(command);
-            console.log(chalk.green('Installed Software'), command);
-        }
-        catch (e) {
-            printRed(msg);
-            if (typeof e === 'string')
-                throw new Error(e);
-        }
+        const command = `npm i -D ${commands.join(' ')}`;
+        return execSync(command);
     }
-}
-
-function sortByKeys(obj) {
-    return Object.fromEntries(Object.entries(obj).sort(([a], [b]) => a.localeCompare(b)));
 }
 
 const SCRIPTS_TO_DELETE = ['compile', 'prePublishOnly', 'jest'];
@@ -310,32 +305,24 @@ async function updatePackageJson() {
         printYellow('Skipping package.json update.');
         return;
     }
-    try {
-        const fileContents = await readFile('package.json', 'utf8');
-        const json = JSON.parse(fileContents);
-        json.main = './lib/index.js';
-        json.module = './lib-esm/index.js';
-        json.types = './lib/index.d.ts';
-        json.files = ['src', 'lib', 'lib-esm'];
-        json.scripts = { ...json.scripts, ...UPDATE_SCRIPTS };
-        SCRIPTS_TO_DELETE.forEach((script) => {
-            if (script in json.scripts) {
-                // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-                delete json.scripts[script];
-            }
-        });
-        if (json.scripts.test && !json.scripts.test.includes('check-types')) {
-            json.scripts.test += ' && npm run check-types';
+    const json = JSON.parse(readFileSync('package.json', 'utf8'));
+    json.main = './lib/index.js';
+    json.module = './lib-esm/index.js';
+    json.types = './lib/index.d.ts';
+    json.files = ['src', 'lib', 'lib-esm'];
+    json.scripts = { ...json.scripts, ...UPDATE_SCRIPTS };
+    SCRIPTS_TO_DELETE.forEach((script) => {
+        if (script in json.scripts) {
+            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+            delete json.scripts[script];
         }
-        json.scripts = sortByKeys(json.scripts);
-        await writeFile('package.json', `${JSON.stringify(json, null, 2)}\n`);
-        console.log(chalk.green('updated package.json'));
+    });
+    if (json.scripts.test && !json.scripts.test.includes('check-types')) {
+        json.scripts.test += ' && npm run check-types';
     }
-    catch (e) {
-        printRed(msg);
-        if (typeof e === 'string')
-            throw new Error(e);
-    }
+    json.scripts = sortByKeys(json.scripts);
+    writeFileSync('package.json', `${JSON.stringify(json, null, 2)}\n`);
+    console.log(chalk.green('updated package.json'));
 }
 
 /**
@@ -353,88 +340,56 @@ async function updateGitignore() {
         printYellow('Skipping .gitignore update.');
         return;
     }
-    try {
-        const fileContents = await readFile('.gitignore', 'utf8');
-        const gitignore = fileContents.split('\n');
-        let result = 0;
-        for (const line of gitignore) {
-            if (line === 'lib')
-                result += 1;
-            else if (line === 'lib-esm')
-                result += 2;
-        }
-        if (!(result & 1))
-            gitignore.push('lib');
-        if (!(result >> 1))
-            gitignore.push('lib-esm');
-        await writeFile('.gitignore', gitignore.join('\n').concat('\n'));
+    const fileContents = await readFile('.gitignore', 'utf8');
+    const gitignore = fileContents.split('\n');
+    let result = 0;
+    for (const line of gitignore) {
+        if (line === 'lib')
+            result += 1;
+        else if (line === 'lib-esm')
+            result += 2;
     }
-    catch (e) {
-        printRed(msg);
-        if (typeof e === 'string')
-            throw new Error(e);
-    }
+    if (!(result & 1))
+        gitignore.push('lib');
+    if (!(result >> 1))
+        gitignore.push('lib-esm');
+    await writeFile('.gitignore', gitignore.join('\n').concat('\n'));
 }
 
-const sources = [
-    {
-        webSource: 'https://raw.githubusercontent.com/cheminfo/.github/main/workflow-templates/nodejs-ts.yml',
-        path: '.github/workflows/nodejs.yml',
-    },
-    {
-        webSource: 'https://raw.githubusercontent.com/cheminfo/generator-cheminfo/main/.github/workflows/release.yml',
-        path: '.github/workflows/release.yml',
-    },
-    {
-        webSource: 'https://raw.githubusercontent.com/cheminfo/wdf-parser/main/.github/workflows/typedoc.yml',
-        path: '.github/workflows/typedoc.yml',
-    },
-];
+const remoteBase = 'https://raw.githubusercontent.com/cheminfo/.github/main/workflow-templates/';
+const localBase = '.github/workflows';
+const sources = ['nodejs-ts.yml', 'typedoc.yml', 'release.yml', 'lactame.yml'];
 async function replaceWorkflow() {
     const branchName = await input({
-        message: 'What is the default branch of your repository? master/main/other',
+        message: 'What is the default branch name ? /main/master/other',
         default: 'main',
     });
-    const msg = 'Replacing workflows';
+    const msg = 'Replacing workflows...';
     printYellow(`Section: ${msg}`);
-    for (const { webSource, path } of sources) {
-        const data = await got(webSource).text();
+    for (const source of sources) {
+        const data = await got(join(remoteBase, source)).text();
         const answer = await confirm({
-            message: `New ${path.split('/').pop() || ''} Workflow? (Warning: overwrites files with the same name)`,
+            message: `Add ${source} Workflow ?`,
             default: true,
         });
         if (!answer) {
             continue;
         }
-        try {
-            printYellow(msg);
-            const updated = branchName
-                ? data.replace('$default-branch', branchName.trim())
-                : data;
-            if (!(await fileExists(path))) {
-                await mkdir('.github/workflows', { recursive: true });
-            }
-            await writeFile(path, updated);
+        printYellow(msg);
+        const updated = branchName
+            ? data.replace('$default-branch', branchName.trim())
+            : data;
+        if (!existsSync(join(localBase, source))) {
+            mkdirSync('.github/workflows', { recursive: true });
         }
-        catch (e) {
-            printRed(msg);
-            if (typeof e === 'string')
-                throw new Error(e);
-        }
+        await writeDataToFile(join(localBase, source), updated);
     }
 }
 
 async function removeOld() {
     const msg = 'Removing Old Software';
     printYellow(`Section: ${msg}`);
-    try {
-        await removeOldLocal();
-    }
-    catch (e) {
-        printRed(msg);
-        if (typeof e === 'string')
-            throw new Error(e);
-    }
+    return removeOldLocal();
 }
 /**
  * Prompts the user to remove old config files and software.
@@ -445,7 +400,6 @@ async function removeOldLocal() {
         message: 'Remove ...?',
         choices: removes.map(({ choice }) => choice),
     });
-    console.log(answers);
     const commands = [];
     for (const { action, choice: { value }, } of removes) {
         if (!answers.includes(value))
@@ -455,17 +409,14 @@ async function removeOldLocal() {
                 commands.push(value);
                 break;
             case 'removeFile':
-                if (await fileExists(value)) {
-                    await unlink(value);
-                    console.log(chalk.blue(value), ' --> ', chalk.green('removed'));
-                }
+                if (existsSync$1(value))
+                    unlinkSync(value);
                 break;
         }
     }
     if (commands.length) {
         const npmCommand = `npm remove ${commands.join(' ')}`;
-        await execAsync(npmCommand);
-        console.log(chalk.blue(npmCommand, ' --> ', chalk.green('done.')));
+        return execSync(npmCommand);
     }
 }
 function makeRemoveChoices() {
@@ -491,7 +442,7 @@ function makeRemoveChoices() {
             choice: {
                 name: 'Babel',
                 value: '.babelrc.json',
-                checked: true,
+                checked: false,
             },
         },
         {
@@ -517,17 +468,8 @@ async function npmCheckUpdates() {
         printYellow('Skipping npm-check-updates.');
         return;
     }
-    try {
-        const command = 'npx npm-check-updates -u';
-        console.log('This will take a few seconds', chalk.blue(command));
-        await execAsync(command);
-        console.log(chalk.green('ran npm-check-updates -u'));
-    }
-    catch (e) {
-        printRed(msg);
-        if (typeof e === 'string')
-            throw new Error(e);
-    }
+    const command = 'npx npm-check-updates -u';
+    return execSync(command);
 }
 
 /**
@@ -535,8 +477,7 @@ async function npmCheckUpdates() {
  * https://github.com/cheminfo/generator-cheminfo/blob/main/ts-migration.md
  */
 async function run() {
-    console.log('\n', chalk.bgRed.yellow('Use at your own risk.'), '\n');
-    if (!(await fileExists('package.json'))) {
+    if (!existsSync$1('package.json')) {
         console.error('\npackage.json not found. Run this program in the project root.');
         process.exit(1);
     }

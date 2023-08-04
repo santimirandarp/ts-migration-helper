@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync } from 'fs';
 import { join } from 'node:path';
+
 import { input, confirm } from '@inquirer/prompts';
 import got from 'got';
 
@@ -25,9 +26,7 @@ export async function replaceWorkflow() {
       message: `Add ${source} Workflow ?`,
       default: true,
     });
-    if (!answer) {
-      continue;
-    }
+    if (!answer) continue;
 
     printYellow(msg);
     const updated = branchName

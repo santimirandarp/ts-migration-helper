@@ -60,7 +60,7 @@ async function handleAction(filename: string, config: any, action: string) {
   const isJs = filename.endsWith('.js');
 
   if (action === 'overwrite') {
-    isJson
+    return isJson
       ? writeFile(filename, JSON.stringify(config, null, 2).concat('\n'))
       : isYaml
       ? writeFile(filename, YAML.stringify({ extends: config }))
@@ -68,16 +68,19 @@ async function handleAction(filename: string, config: any, action: string) {
       ? writeFile(filename, config as string)
       : null;
   } else if (action === 'merge') {
-    const file = await readFile(filename, 'utf-8');
+    const file = readFile(filename, 'utf-8');
     if (isJson) {
       const jsonObject = JSON.parse(file);
-      writeFile(
+      return writeFile(
         filename,
         JSON.stringify({ ...jsonObject, config }, null, 2).concat('\n'),
       );
     } else if (filename.endsWith('.yml')) {
       const yamlObject = YAML.parse(file);
-      writeFile(filename, YAML.stringify({ ...yamlObject, extends: config }));
+      return writeFile(
+        filename,
+        YAML.stringify({ ...yamlObject, extends: config }),
+      );
     }
   }
 }

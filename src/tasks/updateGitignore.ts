@@ -32,5 +32,4 @@ export async function updateGitignore() {
   if (!(result >> 1)) gitignore.push('lib-esm');
 
   await writeFile('.gitignore', gitignore.join('\n').concat('\n'));
-  return;
 }

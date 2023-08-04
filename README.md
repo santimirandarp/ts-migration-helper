@@ -13,7 +13,7 @@ Migrate simple Cheminfo JS projects to Typescript made for personal use.
 ## Installation
 
 ```bash
-npx ts-migration-helper prompt
+npx ts-migration-helper
 ```
 
 

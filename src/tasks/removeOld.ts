@@ -1,5 +1,5 @@
-import { unlinkSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
+import { unlinkSync, existsSync } from 'node:fs';
 
 import { checkbox } from '@inquirer/prompts';
 
@@ -8,7 +8,7 @@ import { printYellow } from '../utils/index.js';
 export async function removeOld() {
   const msg = 'Removing Old Software';
   printYellow(`Section: ${msg}`);
-  return await removeOldLocal();
+  return removeOldLocal();
 }
 /**
  * Prompts the user to remove old config files and software.
@@ -32,7 +32,7 @@ async function removeOldLocal() {
         commands.push(value);
         break;
       case 'removeFile':
-        existsSync(value) && unlinkSync(value);
+        if (existsSync(value)) unlinkSync(value);
         break;
       default:
         break;
@@ -43,7 +43,6 @@ async function removeOldLocal() {
     const npmCommand = `npm remove ${commands.join(' ')}`;
     return execSync(npmCommand);
   }
-  return;
 }
 
 type RemoveChoice = {

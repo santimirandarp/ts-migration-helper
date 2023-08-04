@@ -51,5 +51,4 @@ export async function updatePackageJson() {
   json.scripts = sortByKeys(json.scripts);
   writeFileSync('package.json', `${JSON.stringify(json, null, 2)}\n`);
   console.log(chalk.green('updated package.json'));
-  return;
 }

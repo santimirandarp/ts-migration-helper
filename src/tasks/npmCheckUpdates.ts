@@ -1,5 +1,6 @@
-import { confirm } from '@inquirer/prompts';
 import { execSync } from 'node:child_process';
+
+import { confirm } from '@inquirer/prompts';
 
 import { printYellow } from '../utils/index.js';
 

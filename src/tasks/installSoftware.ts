@@ -1,5 +1,6 @@
-import { checkbox } from '@inquirer/prompts';
 import { execSync } from 'node:child_process';
+
+import { checkbox } from '@inquirer/prompts';
 
 import { printYellow } from '../utils/print.js';
 
@@ -58,8 +59,7 @@ export async function installSoftware() {
 
   if (answers.length) {
     let commands: string[] = [];
-    for (let i = 0; i < installs.length; i++) {
-      const install = installs[i];
+    for (const install of installs) {
       if (answers.includes(install.choice.value)) {
         commands.push(install.command);
       }
