@@ -45,7 +45,7 @@ async function removeOldLocal() {
   }
 }
 
-type RemoveChoice = {
+interface RemoveChoice  {
   action: 'npmRemove' | 'removeFile';
   choice: {
     name: string;
