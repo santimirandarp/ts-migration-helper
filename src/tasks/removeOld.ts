@@ -45,14 +45,14 @@ async function removeOldLocal() {
   }
 }
 
-interface RemoveChoice  {
+interface RemoveChoice {
   action: 'npmRemove' | 'removeFile';
   choice: {
     name: string;
     value: string;
     checked: boolean;
   };
-};
+}
 function makeRemoveChoices(): RemoveChoice[] {
   return [
     {
