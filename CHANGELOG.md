@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.0](https://github.com/santimirandarp/ts-migration-helper/compare/v3.2.0...v4.0.0) (2023-08-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* install as global
+
+### Bug Fixes
+
+* install as global ([18bdc34](https://github.com/santimirandarp/ts-migration-helper/commit/18bdc34c8f6400cd005d724722a9f3a93881ab16))
+
 ## [3.2.2](https://github.com/santimirandarp/ts-migration-helper/compare/v3.2.1...v3.2.2) (2023-08-10)
 
 
