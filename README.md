@@ -4,11 +4,10 @@
 [![build status][ci-image]][ci-url]
 [![npm download][download-image]][download-url]
 
-Migrate simple Cheminfo JS projects to Typescript made for personal use. 
+Migrate _simple_ Cheminfo JS projects to TS. 
 
 1. **[Fork the js project to a Codespace](https://github.com/codespaces/new)** (rather than locally, where you could ruin your system.)
 2. Install and run the helper (details below.) 
-
 
 ## Installation
 
