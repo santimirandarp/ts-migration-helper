@@ -1,6 +1,6 @@
 {
   "name": "ts-migration-helper",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "description": "Migrate simple JS projects to Typescript",
   "keywords": [
     "ts-migration",
