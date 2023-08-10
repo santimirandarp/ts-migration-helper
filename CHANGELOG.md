@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0](https://github.com/santimirandarp/ts-migration-helper/compare/v3.1.0...v3.2.0) (2023-08-10)
+
+
+### Features
+
+* allow renaming all files ([07d4163](https://github.com/santimirandarp/ts-migration-helper/commit/07d4163cf62a1af4e0c01867658aa5f5bd1fc763))
+
 ## [3.1.0](https://github.com/santimirandarp/ts-migration-helper/compare/v3.0.1...v3.1.0) (2023-08-04)
 
 
