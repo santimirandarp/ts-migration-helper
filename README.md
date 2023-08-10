@@ -32,7 +32,8 @@ The code is built with the following idea:
 
 ## ToDos
 
-- [ ] add script to switch to `vitest` and clean up `package.json`. - script to replace `@jest/globals` with `vitest` or add the line (as a default at least.) `import { describe, it, expect } from 'vitest';`
+- [ ] add script to switch to `vitest` and clean up `package.json`.
+- [ ] script to replace `@jest/globals` with `vitest` or add the line (as a default at least.) `import { describe, it, expect } from 'vitest';`
 
 ## Test
 Simplest is to use `npm link` that creates a symlink globally, so that now the scripts in `bin` can be executed with `npx`.
