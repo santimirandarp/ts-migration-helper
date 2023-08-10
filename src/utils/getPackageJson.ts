@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs';
+
 export function getPackageJson() {
   if (!existsSync('package.json')) {
     console.error(

@@ -26,14 +26,13 @@ const tasks = [
   replaceWorkflow,
 ];
 (async function run() {
-  getPackageJson()//errors if not found.
+  getPackageJson(); //errors if not found.
   for (const task of tasks) await task();
-  console.log( chalk.green('Done!'),);
+  console.log(chalk.green('Done!'));
   console.log(`You can try renaming files with:\n
   node node_modules/ts-migration/bin/rename.js\n
-  Use at your own risk.`)
-})()
-  .catch((error) => {
-    console.log(error);
-    process.exit(1);
-  });
+  Use at your own risk.`);
+})().catch((error) => {
+  console.log(error);
+  process.exit(1);
+});
