@@ -7,3 +7,8 @@ export function printYellow(msg: string) {
 export function printRed(msg: string) {
   console.log(chalk.red('Error ', msg));
 }
+
+
+export function printGreen(msg: string) {
+  console.log('\n', chalk.green(msg), '\n');
+}
