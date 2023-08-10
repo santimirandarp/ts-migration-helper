@@ -19,16 +19,18 @@ npx migration-questions
 npx migration-jsrename
 ```
 
+`migration-jsrename`` command is new, if you happen to try this software, please use with caution.
+
+## Contribute
+
 The code is built with the following idea:
 
 - Each function is a task: Install Software, Remove Software, Update Files etc.
 - Tasks are executed in order.
 
-There is also a new simple binary to rename files, use this at your own risk. 
-It will ask for confirmation before renaming. `node node_modules/ts-migration-helper/bin/rename.js`.
+## ToDos
 
-Program is not supposed to be installed with `-g` and that is why `rename` is not included in the `json.bin`.
-
+- [ ] add script to switch to `vitest` and clean up `package.json`. - script to replace `@jest/globals` with `vitest` or add the line (as a default at least.) `import { describe, it, expect } from 'vitest';`
 
 ## License
 
