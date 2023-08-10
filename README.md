@@ -4,10 +4,15 @@
 [![build status][ci-image]][ci-url]
 [![npm download][download-image]][download-url]
 
-Migrate simple Cheminfo JS projects to Typescript made for personal use.
+Migrate simple Cheminfo JS projects to Typescript made for personal use. 
+
+1. **[Fork the js project to a Codespace](https://github.com/codespaces/new)** (rather than locally, where you could ruin your system.)
+2. Install and run the helper (details below.) 
+
 
 ## Installation
 
+From the Codespace terminal, run: 
 ```bash
 npm i -g ts-migration-helper
 ```
@@ -18,8 +23,6 @@ npm i -g ts-migration-helper
 npx migration-questions
 npx migration-jsrename
 ```
-
-`migration-jsrename`` command is new, if you happen to try this software, please use with caution.
 
 ## Contribute
 
@@ -32,6 +35,16 @@ The code is built with the following idea:
 
 - [ ] add script to switch to `vitest` and clean up `package.json`. - script to replace `@jest/globals` with `vitest` or add the line (as a default at least.) `import { describe, it, expect } from 'vitest';`
 
+## Test
+Simplest is to use `npm link` that creates a symlink globally, so that now the scripts in `bin` can be executed with `npx`.
+
+For example you'd do (in `ts-migration-helper` folder):
+```bash
+npm link
+# now switch to any folder of a project that needs migration (preferably a test project.)
+# then you could run
+npx migration-questions && npx migration-jsrename
+```
 ## License
 
 [MIT](./LICENSE)
