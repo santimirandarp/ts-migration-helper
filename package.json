@@ -8,7 +8,10 @@
   ],
   "author": "Santi Miranda",
   "license": "MIT",
-  "bin": "./bin/questions.js",
+  "bin": {
+    "migration-questions": "./bin/questions.js",
+    "migration-rename": "./bin/rename.js"
+  },
   "files": [
     "src",
     "bin"
