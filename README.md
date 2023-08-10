@@ -4,25 +4,47 @@
 [![build status][ci-image]][ci-url]
 [![npm download][download-image]][download-url]
 
-Migrate simple Cheminfo JS projects to Typescript made for personal use.
+Migrate _simple_ Cheminfo JS projects to TS. 
+
+1. **[Fork the js project to a Codespace](https://github.com/codespaces/new)** (rather than locally, where you could ruin your system.)
+2. Install and run the helper (details below.) 
 
 ## Installation
 
+From the Codespace terminal, run: 
 ```bash
-npx ts-migration-helper
+npm i -g ts-migration-helper
 ```
+
+## Execution
+
+```bash
+npx migration-questions
+npx migration-jsrename
+```
+
+## Contribute
 
 The code is built with the following idea:
 
 - Each function is a task: Install Software, Remove Software, Update Files etc.
 - Tasks are executed in order.
 
-There is also a new simple binary to rename files, use this at your own risk. 
-It will ask for confirmation before renaming. `node node_modules/ts-migration-helper/bin/rename.js`.
+## ToDos
 
-Program is not supposed to be installed with `-g` and that is why `rename` is not included in the `json.bin`.
+- [ ] add script to switch to `vitest` and clean up `package.json`.
+- [ ] script to replace `@jest/globals` with `vitest` or add the line (as a default at least.) `import { describe, it, expect } from 'vitest';`
 
+## Test
+Simplest is to use `npm link` that creates a symlink globally, so that now the scripts in `bin` can be executed with `npx`.
 
+For example you'd do (in `ts-migration-helper` folder):
+```bash
+npm link
+# now switch to any folder of a project that needs migration (preferably a test project.)
+# then you could run
+npx migration-questions && npx migration-jsrename
+```
 ## License
 
 [MIT](./LICENSE)
